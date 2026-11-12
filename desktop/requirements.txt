@@ -1,0 +1,2 @@
+-r ../receiver/requirements.txt
+pywebview>=5,<7

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101722">
+  <title>JC Internet Clicker — Remote AV Control</title>
+  <link rel="stylesheet" href="./style.css">
+</head><body>
+<header class="topbar"><div class="brand"><span class="brand-logo">JC</span><div><strong>INTERNET CLICKER</strong><span class="subtitle">Remote show control / v0.3 beta</span></div></div>
+  <div id="account" class="right hidden"><span id="who"></span><span id="who-role" class="role-pill"></span><button id="mode-toggle" class="small ghost" title="Toggle simple and advanced modes">Simple Mode</button><button id="theme-toggle" class="small ghost" title="Light / dark appearance">☀ Theme</button><button id="logout" class="small ghost">Log out</button></div>
+</header>
+<main>
+  <div id="relay-strip" class="relay-strip"><span class="dot offline" id="relay-dot"></span><span id="relay-status">Checking relay…</span>
+    <button id="change-relay" class="small ghost">Relay settings</button><span class="muted" id="relay-address"></span></div>
+  <section id="relay-view" class="login-panel hidden">
+    <h1>Connect to your relay</h1>
+    <p>GitHub hosts the clicker screen. Your secure relay is the separate online service that connects to the remote PCs.</p>
+    <form id="relay-form"><label>Relay web address<input name="relay" id="relay-url" placeholder="https://relay.example.com" required spellcheck="false"></label>
+      <button class="primary" type="submit">Connect to relay</button><p class="hint">Use HTTPS for public internet. For a local first test, <code>http://127.0.0.1:8787</code> works.</p><p id="relay-error" class="error"></p></form>
+  </section>
+  <section id="login-view" class="login-panel hidden"><h1>Operator login</h1><p>Only authorised operators can send show commands.</p>
+    <form id="login-form"><label>Username<input name="username" autocomplete="username" required></label>
+    <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+    <button type="submit" class="primary">Sign in</button><p class="error" id="login-error"></p></form></section>
+  <section id="main-view" class="hidden">
+    <nav class="tabs" aria-label="Clicker sections">
+      <button data-tab="clicker" class="active">Live Clicker</button>
+      <button data-tab="connections">Connections & tests</button>
+      <button data-tab="setup">Configuration</button>
+      <button data-tab="inputs">Inputs / Stream Deck</button>
+      <button data-tab="history">Activity</button><button data-tab="shows" class="advanced">Shows & macros</button><button data-tab="security" class="advanced">Admin & exports</button>
+    </nav>
+    <div id="notice" role="status" aria-live="polite"></div>
+    <section id="clicker-view" class="tab-view"><div class="heading"><div><h1>Live control</h1><p>Choose a show. Connected receivers appear live, even on different Wi-Fi or 5G networks.</p></div><div class="button-row"><button id="full-screen" class="secondary">Fullscreen</button><button id="refresh" class="secondary">Refresh</button></div></div>
+      <div class="show-picker"><label>Current show<select id="profile-select"></select></label><span id="connected-summary" class="muted"></span></div>
+      <div id="clicker-content"></div><div id="macro-clicker-content"></div></section>
+    <section id="connections-view" class="tab-view hidden">
+      <div class="heading"><div><h1>Connections & tests</h1><p>Check that the relay can reach the receiving PC, before testing Arena or PowerPoint.</p></div></div>
+      <div id="connections-content"></div>
+      <article class="panel"><h2>Live signal monitor</h2><p class="hint">The receiver window also displays its incoming commands. These entries update automatically when a signal is sent or acknowledged.</p><div id="signal-feed"></div></article>
+    </section>
+    <section id="setup-view" class="tab-view hidden"><div class="heading"><div><h1>Configuration</h1><p>1. Create a PC, 2. paste its credentials into its local receiver, 3. choose app/port, 4. build clicker buttons.</p></div></div>
+      <div class="setup-grid">
+        <article class="panel"><h2>1. Receiving computers</h2><form id="agent-form"><label>PC name<input name="name" placeholder="Hamilton Arena laptop" required></label><button class="primary">Add PC + starter buttons</button></form>
+        <div id="new-key" class="credential hidden"></div><div id="agent-list"></div></article>
+        <article class="panel"><h2>2. Apps / ports</h2><p class="hint">Targets must be reachable from the receiver's network. For applications installed on that PC, use 127.0.0.1.</p>
+          <form id="target-form"><input name="editingId" type="hidden"><label>Receiving PC<select name="agentId" id="target-agent" required></select></label>
+          <label>Target application<input name="name" placeholder="Arena / PowerPoint / Companion" required></label>
+          <label>Control type<select name="type" id="target-type"><option value="powerpoint">PowerPoint (Windows)</option><option value="osc">OSC / UDP (Resolume)</option><option value="companion">Bitfocus Companion HTTP</option><option value="http">Custom HTTP request</option><option value="tcp">Raw TCP command</option><option value="udp">Raw UDP command</option><option value="vmix">vMix HTTP API</option><option value="obs">OBS WebSocket 5</option><option value="hotkey">Keyboard shortcut</option><option value="midi">MIDI output</option><option value="script">Locally approved script</option></select></label>
+          <div id="network-fields" class="two"><label>IP / host<input name="host" placeholder="127.0.0.1"></label><label>Port<input type="number" name="port" min="1" max="65535" placeholder="7000"></label></div><label id="secure-field"><input type="checkbox" name="secure" style="width:auto"> Use HTTPS for custom HTTP target</label>
+          <div class="button-row"><button class="primary" id="save-target">Save target</button><button type="button" id="cancel-target" class="secondary hidden">Cancel edit</button></div></form><div id="targets-list"></div></article>
+        <article class="panel"><h2>3. Clicker buttons</h2><form id="button-form"><label>Receiving PC<select name="agentId" id="button-agent" required></select></label>
+          <label>Target app<select name="targetId" id="button-target" required></select></label><label>Show profile<select name="profileId" id="button-profile"></select></label>
+          <label>Label<input name="name" placeholder="Next slide / Next column" required></label>
+          <label>Button colour<select name="color"><option value="neutral">Grey</option><option value="green">Green</option><option value="blue">Blue</option><option value="amber">Amber</option><option value="red">Red</option></select></label>
+          <div id="action-fields"></div><button class="primary">Add button</button></form><div id="buttons-list"></div></article>
+      </div>
+    </section>
+    <section id="inputs-view" class="tab-view hidden"><div class="heading"><div><h1>External inputs / Stream Deck</h1><p>Turn a USB presenter clicker or local Companion/Stream Deck button into a remote trigger.</p></div></div>
+      <div class="info-grid"><article class="panel"><h2>USB presenter clicker</h2><p>Run the receiver on the <strong>sending PC</strong>, enable <strong>Detect USB clicker</strong> in its monitor window, then map Right, Left, PageDown or PageUp below. The receiver only reports the selected control keys.</p><p class="hint">Avoid enabling on the same PC as a locally controlled slideshow: the key could advance it twice. Learn Input can pick up a MIDI or keyboard control without guessing its code.</p></article>
+      <article class="panel"><h2>Stream Deck / Companion</h2><p>Send a <strong>POST</strong> from Companion's HTTP Request action to the sender's local receiver at <code>http://127.0.0.1:8877/trigger/BUTTON_ID</code>.</p><p class="hint">Include header <code>X-Clicker-Key</code> with the local receiver's key. No public port forwarding. Use the Copy endpoint buttons below.</p></article></div>
+      <article class="panel"><h2>USB clicker key mapping</h2><p class="hint">Choose the PC with the physically plugged-in clicker. The destination may be a different remote PC. Use the monitor window's SIMULATE buttons to test.</p>
+        <label>Input / sender PC<select id="mapping-agent"></select></label><div id="mappings-content"></div><div class="button-row"><button id="learn-input" class="secondary">Learn last detected input</button></div><div id="learned-input" class="hidden"><label>Detected key<input id="learn-key" readonly></label><label>Trigger which button?<select id="learn-button"></select></label><button id="save-learn" class="primary small">Save learned mapping</button></div></article>
+      <article class="panel"><h2>Copy Stream Deck trigger endpoint</h2><label>Clicker button<select id="stream-button"></select></label><div class="button-row"><button id="copy-stream" class="secondary">Copy HTTP POST endpoint</button></div>
+        <p class="hint">The endpoint uses the sender computer's local receiver, not the receiving PC's IP. You can also POST to <code>/input/right</code> or <code>/input/left</code> to use the mapped keys. The receiver must be connected.</p></article>
+      <article class="panel"><h2>Last detected input</h2><div id="input-feed"></div></article>
+    </section>
+    <section id="history-view" class="tab-view hidden"><div class="heading"><div><h1>Command & input activity</h1><p>Received means the agent saw it; successful OSC/UDP transmission does not guarantee the destination software acted on it.</p></div><button id="download-logs" class="secondary">Download history CSV</button></div><div class="panel" id="history-list"></div></section>
+    <section id="shows-view" class="tab-view hidden advanced"><div class="heading"><div><h1>Show profiles & macros</h1><p>Profiles keep show buttons separated. Macros run multiple stored buttons in a deliberate sequence, including across PCs.</p></div></div>
+      <div class="setup-grid"><article class="panel"><h2>Show profiles</h2><form id="profile-form"><label>Show name<input name="name" placeholder="Genesis • Auckland to Hamilton" required maxlength="70"></label><button class="primary">Add show</button></form><div id="profile-list"></div></article>
+      <article class="panel"><h2>Create multi-action macro</h2><form id="macro-form"><label>Macro label<input name="name" placeholder="Advance both sites" required></label><label>Show<select name="profileId" id="macro-profile"></select></label><label>Send mode<select name="mode"><option value="parallel">Parallel — send to all selected PCs at once</option><option value="sequence">Sequence — execute steps in order and stop on failure</option></select></label><label>Button colour<select name="color"><option value="green">Green</option><option value="blue">Blue</option><option value="neutral">Grey</option><option value="amber">Amber</option><option value="red">Red</option></select></label><div id="macro-steps"></div><button type="button" id="add-macro-step" class="secondary">+ Add step</button><div class="button-row"><button class="primary">Save macro</button></div></form><div id="macro-list"></div></article></div>
+      <article class="panel"><h2>Local independence</h2><p>Each remote computer retains its own PowerPoint/Resolume controls. A multi-PC macro sends to selected receivers in order; operating a local show does not automatically advance another location.</p></article>
+    </section>
+    <section id="security-view" class="tab-view hidden advanced"><div class="heading"><div><h1>Administration & backups</h1><p>Operators can click and test. Only an admin can pair computers, change devices or manage show settings.</p></div></div>
+      <div class="setup-grid"><article class="panel"><h2>Add an operator</h2><form id="operator-form"><label>Username<input name="username" autocomplete="off" required></label><label>Password (12+ characters)<input name="password" type="password" autocomplete="new-password" minlength="12" required></label><button class="primary">Create operator account</button></form><div id="operator-list"></div></article>
+      <article class="panel"><h2>Config backups</h2><p>Download a backup including profiles, buttons, macros and logs — without receiver secrets or account passwords. Importing is additive and only targets receivers already paired to this relay.</p><div class="button-row"><button id="export-backup" class="secondary">Export configuration</button><label class="import-file">Import configuration<input type="file" id="import-backup" accept="application/json,.json"></label></div></article>
+      <article class="panel"><h2>Appearance & branding</h2><label>Show title<input id="brand-name" maxlength="30" placeholder="JC INTERNET CLICKER"></label><label>Logo image (stored on this device)<input id="logo-file" type="file" accept="image/png,image/jpeg,image/webp"></label><button class="secondary" id="clear-brand">Clear branding</button><p class="hint">Branding and theme preferences are saved on the current browser. Show profiles and controls are saved on the relay.</p></article></div>
+      <article class="panel"><h2>Safety</h2><p>The remote receiver only connects outbound and restricts destination networks. Approved scripts are configured on the local receiver, not entered as arbitrary commands from the public website. Never port-forward application control ports.</p><p><a href="./browser.html">Open web-only receiver monitor</a> — receives test packets with no download, but cannot control Windows applications.</p></article>
+    </section>
+  </section>
+</main><footer>Outbound receiver connections only. GitHub Pages hosts the controls; an HTTPS relay is still required for remote operation. Test before live shows.</footer>
+<script src="./app.js" defer></script>
+</body></html>

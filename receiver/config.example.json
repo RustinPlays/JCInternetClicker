@@ -1,0 +1,21 @@
+{
+  "server_url": "http://127.0.0.1:8787",
+  "receiver_id": "PASTE_RECEIVER_ID_HERE",
+  "receiver_key": "PASTE_RECEIVER_KEY_HERE",
+  "allowed_networks": [
+    "127.0.0.0/8",
+    "10.0.0.0/8",
+    "172.16.0.0/12",
+    "192.168.0.0/16",
+    "100.64.0.0/10",
+    "::1/128",
+    "fc00::/7"
+  ],
+  "input_port": 8877,
+  "capture_keys": false,
+  "capture_midi": false,
+  "midi_input_name": "",
+  "midi_output_name": "",
+  "obs_password": "",
+  "approved_scripts": {}
+}

@@ -1,0 +1,28 @@
+JC INTERNET CLICKER v0.3 BETA — START HERE
+
+What you asked for:
+- Main use = WEBSITE + SMALL WINDOWS RECEIVER.
+- A second download = JC CLICKER STUDIO with receiver, logs, settings + web dashboard.
+- Browser-only test receiver (no download, no PowerPoint/OSC control).
+
+First local test:
+1. Install Node.js 20+ and run Start-Relay-Windows.bat on the relay PC.
+2. Visit http://127.0.0.1:8787 and create the admin login on first run.
+3. Choose Advanced Mode > Configuration > Add PC + starter buttons.
+4. On that PC, click Pair with code; copy the ten-minute code.
+5. On target PC, run receiver/start-windows.bat, enter relay URL and code.
+6. Verify CONNECTED. Website Connections > Send test signal.
+7. Receiver window should show RECEIVED and ACK SENT. Website shows latency.
+8. Test PowerPoint and Arena with actual slideshow and OSC monitor.
+
+To use remotely across Wi-Fi / 5G, deploy a separate always-on HTTPS relay.
+GitHub Pages only hosts the controls. Read GITHUB_SETUP.md.
+
+To use full Studio: run Start-Studio-Windows.bat (needs Python).
+Standalone Windows EXE builds are produced by the included GitHub Actions workflow;
+no EXEs are included in this source release zip.
+
+Safety: Do not port-forward Companion/OSC/receiver to the internet. No queued
+reconnect clicks. Do not use as your sole mission-critical clicker until tested.
+
+STATUS: beta source build. Not deployed, not tested with Windows AV hardware.

@@ -1,0 +1,18 @@
+{
+  "name": "jc-internet-clicker-relay",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Authenticated internet clicker relay and web UI for AV receivers",
+  "type": "module",
+  "scripts": {
+    "setup": "node setup.mjs",
+    "start": "node server.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}
